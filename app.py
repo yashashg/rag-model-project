@@ -5,10 +5,17 @@ import numpy as np
 from sentence_transformers import SentenceTransformer
 from openai import OpenAI
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Load model and data
 st.set_page_config(page_title="Semantic Quote Search")
 st.title("🧠 Semantic Quote Retrieval with RAG")
+key = os.getenv("OPENAI_API_KEY")
+if not key:
+    st.error("Please set the OPENAI_API_KEY environment variable to use this app.")
+    st.stop()
 
 @st.cache_resource
 def load_data():
@@ -39,7 +46,7 @@ def retrieve_quotes(query, top_k=5, similarity_threshold=0.75):
 
 def generate_answer(query, context_quotes):
     # Initialize client using environment variable
-    client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    client = OpenAI(api_key=key)
 
     # Create a prompt using retrieved quotes
     context_text = "\n".join([f"- {q['quote']} ({q['author']})" for q in context_quotes])
